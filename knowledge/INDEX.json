@@ -1,0 +1,263 @@
+{
+  "generated_at": "2026-06-09T10:55:02Z",
+  "topics": [
+    {
+      "id": "ARCH-001",
+      "title": "Compound Memory System",
+      "category": "architecture",
+      "path": "knowledge/architecture/ARCH-001_compound-memory-system.md",
+      "status": "active",
+      "related": [
+        "PROC-001",
+        "TOOL-001",
+        "RULE-001"
+      ],
+      "sessions": [
+        "001"
+      ],
+      "tags": [
+        "memory",
+        "hooks",
+        "architecture",
+        "example"
+      ],
+      "last_verified": "2026-06-09"
+    },
+    {
+      "id": "D-001",
+      "title": "Example decision — the ADR body schema",
+      "category": "decisions",
+      "path": "knowledge/decisions/D-001_example-decision.md",
+      "status": "active",
+      "related": [
+        "ARCH-001",
+        "L-001"
+      ],
+      "sessions": [
+        "001"
+      ],
+      "tags": [
+        "example",
+        "adr",
+        "schema"
+      ],
+      "last_verified": "2026-06-09"
+    },
+    {
+      "id": "L-001",
+      "title": "Example learning — the L-NNN body schema",
+      "category": "learnings",
+      "path": "knowledge/learnings/L-001_example-learning.md",
+      "status": "active",
+      "related": [
+        "RULE-002",
+        "D-001"
+      ],
+      "sessions": [
+        "001"
+      ],
+      "tags": [
+        "example",
+        "schema"
+      ],
+      "last_verified": "2026-06-09"
+    },
+    {
+      "id": "PROC-001",
+      "title": "Session Recap + 5-Session Consolidation",
+      "category": "processes",
+      "path": "knowledge/processes/PROC-001_session-recap-and-consolidation.md",
+      "status": "active",
+      "related": [
+        "ARCH-001",
+        "TOOL-001"
+      ],
+      "sessions": [
+        "001"
+      ],
+      "tags": [
+        "process",
+        "memory",
+        "ritual",
+        "example"
+      ],
+      "last_verified": "2026-06-09"
+    },
+    {
+      "id": "PROJ-001",
+      "title": "Example Project — overview",
+      "category": "projects",
+      "path": "knowledge/projects/example-project/PROJ-001_overview.md",
+      "status": "active",
+      "related": [
+        "ARCH-001"
+      ],
+      "sessions": [
+        "001"
+      ],
+      "tags": [
+        "example",
+        "project"
+      ],
+      "last_verified": "2026-06-09"
+    },
+    {
+      "id": "RULE-001",
+      "title": "Detailed summaries after every piece of work",
+      "category": "rules",
+      "path": "knowledge/rules/RULE-001_detailed-summaries.md",
+      "status": "active",
+      "related": [],
+      "sessions": [
+        "001"
+      ],
+      "tags": [
+        "communication",
+        "workflow",
+        "example"
+      ],
+      "last_verified": "2026-06-09"
+    },
+    {
+      "id": "RULE-002",
+      "title": "Verify, don't claim",
+      "category": "rules",
+      "path": "knowledge/rules/RULE-002_verify-dont-claim.md",
+      "status": "active",
+      "related": [
+        "L-001"
+      ],
+      "sessions": [
+        "001"
+      ],
+      "tags": [
+        "verification",
+        "safety",
+        "example"
+      ],
+      "last_verified": "2026-06-09"
+    },
+    {
+      "id": "TOOL-001",
+      "title": "Knowledge Index Builder (build_knowledge_index.py)",
+      "category": "tools",
+      "path": "knowledge/tools/TOOL-001_knowledge-index-builder.md",
+      "status": "active",
+      "related": [
+        "PROC-001",
+        "ARCH-001"
+      ],
+      "sessions": [
+        "001"
+      ],
+      "tags": [
+        "python",
+        "index",
+        "knowledge",
+        "example"
+      ],
+      "last_verified": "2026-06-09"
+    }
+  ],
+  "by_category": {
+    "architecture": [
+      "ARCH-001"
+    ],
+    "decisions": [
+      "D-001"
+    ],
+    "learnings": [
+      "L-001"
+    ],
+    "processes": [
+      "PROC-001"
+    ],
+    "projects": [
+      "PROJ-001"
+    ],
+    "rules": [
+      "RULE-001",
+      "RULE-002"
+    ],
+    "tools": [
+      "TOOL-001"
+    ]
+  },
+  "by_session": {
+    "001": [
+      "ARCH-001",
+      "D-001",
+      "L-001",
+      "PROC-001",
+      "PROJ-001",
+      "RULE-001",
+      "RULE-002",
+      "TOOL-001"
+    ]
+  },
+  "by_tag": {
+    "adr": [
+      "D-001"
+    ],
+    "architecture": [
+      "ARCH-001"
+    ],
+    "communication": [
+      "RULE-001"
+    ],
+    "example": [
+      "ARCH-001",
+      "D-001",
+      "L-001",
+      "PROC-001",
+      "PROJ-001",
+      "RULE-001",
+      "RULE-002",
+      "TOOL-001"
+    ],
+    "hooks": [
+      "ARCH-001"
+    ],
+    "index": [
+      "TOOL-001"
+    ],
+    "knowledge": [
+      "TOOL-001"
+    ],
+    "memory": [
+      "ARCH-001",
+      "PROC-001"
+    ],
+    "process": [
+      "PROC-001"
+    ],
+    "project": [
+      "PROJ-001"
+    ],
+    "python": [
+      "TOOL-001"
+    ],
+    "ritual": [
+      "PROC-001"
+    ],
+    "safety": [
+      "RULE-002"
+    ],
+    "schema": [
+      "D-001",
+      "L-001"
+    ],
+    "verification": [
+      "RULE-002"
+    ],
+    "workflow": [
+      "RULE-001"
+    ]
+  },
+  "orphans": [
+    "RULE-001"
+  ],
+  "broken_refs": [],
+  "duplicates": [],
+  "missing_frontmatter": []
+}
