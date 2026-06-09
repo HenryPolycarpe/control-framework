@@ -37,6 +37,37 @@ cross-referenced, and self-validating.
 
 ---
 
+## How it compares
+
+The Claude-Code-memory niche is crowded. Most tools either install a black-box plugin backed by a vector
+database, or bolt on a general-purpose agent-memory framework. Control sits at the opposite corner:
+**plain-markdown, git-native, zero-dependency, and you own every file.** Star counts as of 2026-06-09.
+
+| Project | ⭐ | Storage | Deps | Differentiator vs. Control |
+|---|--:|---|---|---|
+| [everything-claude-code](https://github.com/affaan-m/everything-claude-code) | 211k | flat files | medium | Omnibus harness (64 agents, 261 skills); heavy, opinionated about your whole workflow |
+| [MCP memory server](https://github.com/modelcontextprotocol/servers/tree/main/src/memory) | 87k | JSONL graph | TS/Docker | Official knowledge-graph via MCP tool calls; no hooks, no ritual |
+| [claude-mem](https://github.com/thedotmack/claude-mem) | 81k | SQLite + ChromaDB | heavy | AI-compressed capture + vector retrieval; opaque, needs ChromaDB/Bun/uv |
+| [mem0](https://github.com/mem0ai/mem0) | 58k | vector + graph | heavy | General memory layer for any agent; not Claude-Code-specific |
+| [graphiti](https://github.com/getzep/graphiti) | 27k | Neo4j graph | heavy | Temporal knowledge graph; infra-heavy |
+| [letta (MemGPT)](https://github.com/letta-ai/letta) | 23k | Postgres + vector | heavy | Stateful tiered-memory agents; a runtime, not a scaffold |
+| [basic-memory](https://github.com/basicmachines-co/basic-memory) | 3.2k | plain markdown | Python+MCP | MCP-native markdown, cross-client; no enforced rituals/validation |
+| [claude-memory-compiler](https://github.com/coleam00/claude-memory-compiler) | 1.1k | markdown articles | Python+SDK | SDK auto-extracts knowledge; no schema/index validation |
+| [claude-memory-kit](https://github.com/awrshift/claude-memory-kit) | 21 | plain markdown | **zero** | Closest peer — zero-dep markdown, but no validated index or enforced gate |
+| **control-framework** | — | **plain markdown + validated index** | **zero** | **Enforced recap ritual via hooks + %5 consolidation gate + schema-validated knowledge index + ranked conflict hierarchy** |
+
+**What's genuinely unique here** (no other tool in the niche does all of these): the recap ritual is
+*enforced by hooks*, not hoped for; the every-5th-session consolidation is a *hard gate*; the knowledge
+map is *schema-validated* (broken cross-refs / dupes / category mismatches fail the build); and conflicts
+resolve via a *deterministic ranked hierarchy*.
+
+**What it deliberately doesn't do:** no semantic/vector retrieval (the index is read whole — efficient to
+~500 topics, not beyond), no automatic LLM extraction (the agent writes memories itself, on prompt), no
+MCP server, no multi-user/team support. If you want a managed black box, pick claude-mem or mem0. If you
+want a scaffold you fully understand and control, that sends nothing to a third party, this is it.
+
+---
+
 ## How it works (the loop)
 
 ```
@@ -134,6 +165,7 @@ control-framework/
 │   └── hooks/
 │       ├── session_start.sh      ← forces recap/consolidation, assigns session numbers race-free
 │       ├── session_end.sh        ← snapshots transcript + drops a per-session flag
+│       ├── session_pre_compact.sh ← PreCompact: snapshots the FULL transcript before compaction (no data loss)
 │       └── block_git_add_all.sh  ← PreToolUse guard: blocks `git add -A`/`.` (secret-leak prevention)
 │
 ├── skills/
@@ -198,6 +230,13 @@ All three are plain bash, no dependencies, and **auto-detect the repo root** fro
   session numbers from the real `sessions/` state (race-free, only here), and injects an
   `additionalContext` block instructing the assistant to write the pending recap(s) first. On a number
   divisible by 5 it adds a **HARD GATE** demanding consolidation before any other work.
+
+- **`session_pre_compact.sh`** (PreCompact, matcher `manual|auto`) — when a session hits the context
+  limit, Claude Code truncates the history; by the time SessionEnd fires, the transcript is already the
+  lossy, compacted version. PreCompact runs *just before* that, so it snapshots the richest capture of
+  the session. It's a pure side-effect (PreCompact has no `additionalContext` channel — it can only
+  block, which we never do): write the snapshot, allow compaction. `session_end.sh` has a no-clobber
+  guard so it won't overwrite this richer snapshot with the post-compaction transcript.
 
 - **`block_git_add_all.sh`** (PreToolUse, matcher `Bash`) — denies `git add -A` / `git add --all` /
   `git add .`. Blanket staging once swept a private SSH key into a commit; this hook is deterministic

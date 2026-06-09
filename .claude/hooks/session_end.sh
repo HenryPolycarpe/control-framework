@@ -25,9 +25,14 @@ REASON="$(get reason)"
 END_TS="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
 # Snapshot the transcript NOW, while it still exists (best-effort).
+# No-clobber guard: if the PreCompact hook already captured a (richer, pre-compaction) snapshot for this
+# session, keep it — don't overwrite it with the now-compacted transcript.
 SNAP=""
-if [ -n "$TRANSCRIPT" ] && [ -f "$TRANSCRIPT" ]; then
-  SNAP="$SNAP_DIR/$SESSION_ID.jsonl"
+EXISTING="$SNAP_DIR/$SESSION_ID.jsonl"
+if [ -f "$EXISTING" ]; then
+  SNAP="$EXISTING"
+elif [ -n "$TRANSCRIPT" ] && [ -f "$TRANSCRIPT" ]; then
+  SNAP="$EXISTING"
   cp "$TRANSCRIPT" "$SNAP" 2>/dev/null || SNAP=""
 fi
 
