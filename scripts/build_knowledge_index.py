@@ -254,6 +254,26 @@ def build_index() -> tuple[dict, bool]:
 
     orphans = sorted(t["id"] for t in topics if not t["related"])
 
+    # Staleness (warning ONLY, does not affect ok/exit code): last_verified older than 30 days
+    # or missing/unparseable. Surface it so the precedence rule ("newer last_verified beats
+    # older") doesn't run on stale data.
+    today = datetime.now(timezone.utc).date()
+    stale_topics: list[dict] = []
+    no_last_verified: list[str] = []
+    for t in topics:
+        lv = str(t["last_verified"] or "").strip()
+        if not lv:
+            no_last_verified.append(t["id"])
+            continue
+        try:
+            age = (today - datetime.strptime(lv[:10], "%Y-%m-%d").date()).days
+        except ValueError:
+            no_last_verified.append(t["id"])
+            continue
+        if age > 30:
+            stale_topics.append({"id": t["id"], "last_verified": lv, "age_days": age})
+    stale_topics.sort(key=lambda x: -x["age_days"])
+
     index = {
         "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "topics": sorted(topics, key=lambda x: x["id"]),
@@ -261,6 +281,8 @@ def build_index() -> tuple[dict, bool]:
         "by_session": dict(sorted(by_session.items())),
         "by_tag": dict(sorted(by_tag.items())),
         "orphans": orphans,
+        "stale_topics": stale_topics,
+        "no_last_verified": sorted(no_last_verified),
         "broken_refs": broken_refs,
         "duplicates": sorted(set(duplicates)),
         "missing_frontmatter": sorted(missing_frontmatter),
@@ -295,6 +317,12 @@ def main() -> int:
         f"{len(index['missing_frontmatter'])} missing-frontmatter "
         f"→ {INDEX_PATH.relative_to(CONTROL_DIR)}"
     )
+    if index["stale_topics"] or index["no_last_verified"]:
+        print(
+            f"WARN (non-fatal): {len(index['stale_topics'])} topics last_verified >30d, "
+            f"{len(index['no_last_verified'])} with missing/unparseable last_verified "
+            f"(details in INDEX.json: stale_topics / no_last_verified)"
+        )
     return 0 if ok else 1
 
 

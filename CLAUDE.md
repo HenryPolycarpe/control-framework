@@ -67,7 +67,9 @@ On conflict, the canon wins: the RULE file beats `feedback_` memory; a newer `la
 
 ## Memory system (compound memory)
 Three layers: **auto-memory** (`memory/`, injected at every start as `claudeMd`) ·
-**`memory.md`** (consolidated) · **`sessions/`** (protocols).
+**`memory.md`** (consolidated) · **`sessions/`** (protocols). Plus one meta file:
+`memory/AGENTIC_LOOP.md` — living *working-method* lessons, hook-injected every session,
+curated at every consolidation (max ~8 entries, "trigger -> do this" format).
 
 Why it compounds: the SessionEnd hook snapshots every session, the SessionStart hook forces the recap
 first, auto-memory is git-versioned, and every 5 sessions consolidation distills insights into the

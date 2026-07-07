@@ -171,6 +171,7 @@ control-framework/
 ├── skills/
 │   ├── end_of_session.md         ← per-session recap ritual
 │   ├── weekly_consolidation.md   ← every-5th-session distillation (HARD GATE)
+│   ├── SKILL_PROPOSALS.md        ← ledger: a workflow proposed 3× becomes a skill
 │   ├── README.md  _example_skill.md
 │
 ├── knowledge/                    ← the knowledge map (7 categories + INDEX.json)
@@ -180,6 +181,7 @@ control-framework/
 │
 ├── memory/
 │   ├── MEMORY.md                 ← one-line-per-fact index, injected every session
+│   ├── AGENTIC_LOOP.md           ← living working-method lessons, injected every session
 │   └── *.md                      ← atomic facts (type: user | feedback | project | reference)
 │
 ├── scripts/build_knowledge_index.py   ← stdlib-only index builder + validator
@@ -217,19 +219,30 @@ Then:
 
 ## The hooks, precisely
 
-All three are plain bash, no dependencies, and **auto-detect the repo root** from their own location
-(override with `CTRL_HOME` for testing). Claude Code passes each hook a JSON event on stdin.
+All are plain bash, no dependencies, and **auto-detect the repo root** from their own location
+(override with `CTRL_HOME` for testing; `CLAUDE_PROJECT_DIR` is respected too). Claude Code passes
+each hook a JSON event on stdin — parsed with real JSON parsing via python3 (the old grep/sed
+extraction silently lost ~6% of events on escaped values), with a grep/sed fallback.
 
 - **`session_end.sh`** (SessionEnd) — copies the live transcript to `.session_snapshots/<id>.jsonl`
   *immediately* (before Claude Code can clean it up), then writes a flag file
-  `.pending_session_writes/<id>` with the end timestamp and source paths. One flag per session — no
-  single-file race when sessions end back-to-back.
+  `.pending_session_writes/<id>` with the end timestamp and source paths. One flag per session, written
+  atomically (tempfile + rename) — no single-file race when sessions end back-to-back. Finally it
+  **auto-pushes** any committed-but-unpushed commits to `origin` in the background (non-blocking,
+  30s timeout, never fails the hook) — the multi-machine sync: one machine writes, others pull.
 
 - **`session_start.sh`** (SessionStart) — scans the flag folder, excludes the current session, dedups any
   already-recapped sessions (it greps `sessions/*.md` for the `prev_session_id:` frontmatter), assigns
   session numbers from the real `sessions/` state (race-free, only here), and injects an
   `additionalContext` block instructing the assistant to write the pending recap(s) first. On a number
-  divisible by 5 it adds a **HARD GATE** demanding consolidation before any other work.
+  divisible by 5 it adds a **HARD GATE** demanding consolidation before any other work. It also injects:
+  - **`memory/MEMORY.md`** on machines without the native memory symlink (`~/.claude/projects/<hash>/memory`),
+    so the assistant wakes with full auto-memory on any machine — web, a second computer, a fresh clone.
+    Duplicate injection is suppressed where the symlink exists; override with `CTRL_MEMORY=force|skip`.
+  - **`memory/AGENTIC_LOOP.md`** — the living working-method lessons, everywhere, every session.
+  - an **orphan-memory warning** if any `memory/*.md` lacks a `MEMORY.md` pointer (invisible memories
+    are caught mechanically, not by ritual discipline).
+  - an **unpushed-commits warning** if a previous auto-push silently failed.
 
 - **`session_pre_compact.sh`** (PreCompact, matcher `manual|auto`) — when a session hits the context
   limit, Claude Code truncates the history; by the time SessionEnd fires, the transcript is already the

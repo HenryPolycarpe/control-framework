@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-06-09T10:55:02Z",
+  "generated_at": "2026-07-07T11:18:56Z",
   "topics": [
     {
       "id": "ARCH-001",
@@ -257,6 +257,8 @@
   "orphans": [
     "RULE-001"
   ],
+  "stale_topics": [],
+  "no_last_verified": [],
   "broken_refs": [],
   "duplicates": [],
   "missing_frontmatter": []

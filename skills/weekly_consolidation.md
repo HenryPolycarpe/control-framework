@@ -114,9 +114,33 @@ python3 -c "import json; d=json.load(open('knowledge/INDEX.json')); \
 - For new `RULE-*` or high-relevance `L-*` -> one bullet in `memory/MEMORY.md` with a pointer into the topic file.
 - Stale auto-memory files: delete or migrate to a topic, clean the index.
 
+### 9b. Curate the agentic-loop list (required — `memory/AGENTIC_LOOP.md`)
+
+This file is injected at EVERY session start (hook). It is the self-improvement layer for
+**working method / turn efficiency** — not for project facts. At every consolidation:
+
+1. Scan sessions N-4..N for **recurring friction**: where were turns/tokens lost? Rabbit holes?
+   Duplicate work? Wrong assumptions? Knowledge that existed but wasn't recalled?
+2. Record every *generalizable* lesson as **"Trigger -> do this" + (evidence/session)**.
+   Working method only; project-specific facts go to memories/topics instead.
+3. **Trim:** max ~8 entries. Remove internalized/no-longer-relevant points. Review the
+   candidates section — promote what got confirmed.
+4. **Orphan check** (applies here too): every new/changed `memory/` file needs a `MEMORY.md`
+   pointer (command in `end_of_session.md` step 5b).
+
+### 9c. Curate skill proposals (required — `skills/SKILL_PROPOSALS.md`, the 3x rule)
+
+After every consolidation, check the fresh learnings/sessions for **recurring workflows** that
+deserve to become a skill (multi-step, cross-project or cross-task, was re-derived ad hoc):
+1. New pattern -> add an entry to `skills/SKILL_PROPOSALS.md` (counter = 1, date + evidence sessions).
+2. Existing proposal shows up again -> **counter +1** with date + new evidence.
+3. **Counter reaches 3 -> the skill gets created** (`skills/<name>.md` or `.claude/skills/<name>/`),
+   set the ledger status to `CREATED: <path>`, mention it in the summary to the user.
+4. Proposals no longer relevant -> set to `rejected: <reason>`, never delete (history).
+
 ### 10. Git commit
 ```bash
-git add knowledge/ memory.md memory/
+git add knowledge/ memory.md memory/ skills/SKILL_PROPOSALS.md
 git commit -m "consolidation: sessions $((N-4))-$N -> X new topics (Y learnings, Z decisions)"
 ```
 Don't switch branches. No `--amend`.
@@ -135,4 +159,4 @@ Don't switch branches. No `--amend`.
 2. Every new topic has ≥1 `related:` OR is legitimately standalone (RULE).
 3. `sessions/session_<N-4..N>.md` unchanged (original protection).
 4. `memory.md` not bloated, no topic content duplicated.
-5. Git status: only `knowledge/`, `memory.md`, `memory/` modified.
+5. Git status: only `knowledge/`, `memory.md`, `memory/`, `skills/SKILL_PROPOSALS.md` modified.
