@@ -3,7 +3,7 @@ id: RULE-001
 title: "Detailed summaries after every piece of work"
 category: rules
 status: active
-related: []
+related: [PROC-001]
 sessions: ["001"]
 tags: [communication, workflow, example]
 last_verified: 2026-06-09

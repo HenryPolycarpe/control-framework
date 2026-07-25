@@ -1,0 +1,45 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  selftest:
+    name: hooks + index + unattended install
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Self-test (hooks fire, numbering, gate, dedup, guards, index)
+        run: bash scripts/selftest.sh
+
+      - name: Template placeholders are still intact
+        run: |
+          for f in CLAUDE.md memory.md memory/user_owner_role.md; do
+            grep -q '{{' "$f" || { echo "::error file=$f::placeholder was accidentally committed as personalized"; exit 1; }
+          done
+
+      - name: Installer runs unattended on a fresh copy
+        run: |
+          cp -r "$GITHUB_WORKSPACE" /tmp/instance
+          cd /tmp/instance
+          ./install.sh --assistant Control --owner "CI Runner" --contact ci@example.com --yes
+          for f in CLAUDE.md memory.md memory/user_owner_role.md; do
+            ! grep -q '{{' "$f" || { echo "::error file=$f::placeholder survived the installer"; exit 1; }
+          done
+          if git remote get-url origin >/dev/null 2>&1; then
+            echo "::error::install.sh did not detach the template remote — a clone would push private memory to the template"
+            exit 1
+          fi
+
+      - name: Installer --clean-examples leaves a green index
+        run: |
+          cp -r "$GITHUB_WORKSPACE" /tmp/clean
+          cd /tmp/clean
+          ./install.sh --owner "CI" --contact ci@example.com --yes --clean-examples --no-selftest
+          python3 scripts/build_knowledge_index.py
+          bash scripts/selftest.sh --quiet

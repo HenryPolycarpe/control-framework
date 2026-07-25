@@ -1,5 +1,7 @@
 # Control — a compound-memory framework for Claude Code
 
+[![ci](https://github.com/HenryPolycarpe/control-framework/actions/workflows/ci.yml/badge.svg)](https://github.com/HenryPolycarpe/control-framework/actions/workflows/ci.yml)
+
 **Turn Claude Code into a persistent, self-documenting personal engineer that gets smarter every
 session instead of forgetting everything when the context window closes.**
 
@@ -17,7 +19,8 @@ across many projects and a production server — extracted, anonymized, and made
 the installer, and you have your own.
 
 > This repo is a **template**, not a running instance. Files contain `{{PLACEHOLDERS}}` and `EXAMPLE`
-> topics. `install.sh` fills the placeholders; you delete the examples as you add real content.
+> topics. `install.sh` fills them in, detaches the template remote, and finishes with a self-test
+> that proves the hook loop actually runs on your machine — one command, no questions asked.
 
 ---
 
@@ -41,19 +44,19 @@ cross-referenced, and self-validating.
 
 The Claude-Code-memory niche is crowded. Most tools either install a black-box plugin backed by a vector
 database, or bolt on a general-purpose agent-memory framework. Control sits at the opposite corner:
-**plain-markdown, git-native, zero-dependency, and you own every file.** Star counts as of 2026-06-09.
+**plain-markdown, git-native, zero-dependency, and you own every file.** Star counts as of 2026-07-25.
 
 | Project | ⭐ | Storage | Deps | Differentiator vs. Control |
 |---|--:|---|---|---|
-| [everything-claude-code](https://github.com/affaan-m/everything-claude-code) | 211k | flat files | medium | Omnibus harness (64 agents, 261 skills); heavy, opinionated about your whole workflow |
-| [MCP memory server](https://github.com/modelcontextprotocol/servers/tree/main/src/memory) | 87k | JSONL graph | TS/Docker | Official knowledge-graph via MCP tool calls; no hooks, no ritual |
-| [claude-mem](https://github.com/thedotmack/claude-mem) | 81k | SQLite + ChromaDB | heavy | AI-compressed capture + vector retrieval; opaque, needs ChromaDB/Bun/uv |
-| [mem0](https://github.com/mem0ai/mem0) | 58k | vector + graph | heavy | General memory layer for any agent; not Claude-Code-specific |
-| [graphiti](https://github.com/getzep/graphiti) | 27k | Neo4j graph | heavy | Temporal knowledge graph; infra-heavy |
-| [letta (MemGPT)](https://github.com/letta-ai/letta) | 23k | Postgres + vector | heavy | Stateful tiered-memory agents; a runtime, not a scaffold |
-| [basic-memory](https://github.com/basicmachines-co/basic-memory) | 3.2k | plain markdown | Python+MCP | MCP-native markdown, cross-client; no enforced rituals/validation |
-| [claude-memory-compiler](https://github.com/coleam00/claude-memory-compiler) | 1.1k | markdown articles | Python+SDK | SDK auto-extracts knowledge; no schema/index validation |
-| [claude-memory-kit](https://github.com/awrshift/claude-memory-kit) | 21 | plain markdown | **zero** | Closest peer — zero-dep markdown, but no validated index or enforced gate |
+| [everything-claude-code](https://github.com/affaan-m/everything-claude-code) | 233k | flat files | medium | Omnibus harness (64 agents, 261 skills); heavy, opinionated about your whole workflow |
+| [MCP memory server](https://github.com/modelcontextprotocol/servers/tree/main/src/memory) | 89k | JSONL graph | TS/Docker | Official knowledge-graph via MCP tool calls; no hooks, no ritual |
+| [claude-mem](https://github.com/thedotmack/claude-mem) | 89k | SQLite + ChromaDB | heavy | AI-compressed capture + vector retrieval; opaque, needs ChromaDB/Bun/uv |
+| [mem0](https://github.com/mem0ai/mem0) | 62k | vector + graph | heavy | General memory layer for any agent; not Claude-Code-specific |
+| [graphiti](https://github.com/getzep/graphiti) | 29k | Neo4j graph | heavy | Temporal knowledge graph; infra-heavy |
+| [letta (MemGPT)](https://github.com/letta-ai/letta) | 24k | Postgres + vector | heavy | Stateful tiered-memory agents; a runtime, not a scaffold |
+| [basic-memory](https://github.com/basicmachines-co/basic-memory) | 3.5k | plain markdown | Python+MCP | MCP-native markdown, cross-client; no enforced rituals/validation |
+| [claude-memory-compiler](https://github.com/coleam00/claude-memory-compiler) | 1.3k | markdown articles | Python+SDK | SDK auto-extracts knowledge; no schema/index validation |
+| [claude-memory-kit](https://github.com/awrshift/claude-memory-kit) | 27 | plain markdown | **zero** | Closest peer — zero-dep markdown, but no validated index or enforced gate |
 | **control-framework** | — | **plain markdown + validated index** | **zero** | **Enforced recap ritual via hooks + %5 consolidation gate + schema-validated knowledge index + ranked conflict hierarchy** |
 
 **What's genuinely unique here** (no other tool in the niche does all of these): the recap ritual is
@@ -159,6 +162,7 @@ control-framework/
 ├── CLAUDE.md                     ← assistant identity + knowledge hierarchy + rules (the system prompt)
 ├── memory.md                     ← consolidated human-readable state
 ├── README.md  LICENSE  install.sh
+├── .github/workflows/ci.yml      ← self-test + unattended-install check on every push
 │
 ├── .claude/
 │   ├── settings.json             ← hook wiring (uses $CLAUDE_PROJECT_DIR; portable)
@@ -171,7 +175,8 @@ control-framework/
 ├── skills/
 │   ├── end_of_session.md         ← per-session recap ritual
 │   ├── weekly_consolidation.md   ← every-5th-session distillation (HARD GATE)
-│   ├── SKILL_PROPOSALS.md        ← ledger: a workflow proposed 3× becomes a skill
+│   ├── session_reconstruction.md ← clear a recap backlog (>3 flags): triage, fan-out, verify
+│   ├── SKILL_PROPOSALS.md        ← ledger: a workflow seen in 3 consolidations becomes a skill
 │   ├── README.md  _example_skill.md
 │
 ├── knowledge/                    ← the knowledge map (7 categories + INDEX.json)
@@ -184,7 +189,9 @@ control-framework/
 │   ├── AGENTIC_LOOP.md           ← living working-method lessons, injected every session
 │   └── *.md                      ← atomic facts (type: user | feedback | project | reference)
 │
-├── scripts/build_knowledge_index.py   ← stdlib-only index builder + validator
+├── scripts/
+│   ├── build_knowledge_index.py       ← stdlib-only index builder + validator
+│   └── selftest.sh                    ← fires the real hooks at a sandbox; 19 checks, run by CI
 ├── sessions/session_000_example.md    ← compacted per-session protocols live here
 ├── plans/   legacy/                    ← scratch + frozen docs
 └── .gitignore                          ← secrets (.env, keys/), runtime state, local settings
@@ -199,21 +206,53 @@ control-framework/
 ```bash
 git clone https://github.com/HenryPolycarpe/control-framework.git my-control
 cd my-control
-./install.sh          # fills placeholders, wires hooks, builds the index
+./install.sh
+```
+
+That's it. The installer runs **unattended** (it only asks if you are on a terminal and want it to),
+takes your name/email from `git config`, and ends with a 19-check self-test. Options:
+
+```bash
+./install.sh --owner "Jane Doe" --contact jane@example.com --assistant Jarvis --yes
+```
+
+```bash
+./install.sh --clean-examples
 ```
 
 Then:
 1. Read `CLAUDE.md` — it's now your assistant's identity. Edit it freely.
-2. Launch Claude Code **from this directory** (the hooks resolve via `$CLAUDE_PROJECT_DIR`).
+2. Launch Claude Code **from this directory** and approve the project's hooks once when asked.
 3. Do some work. When you end the session, the SessionEnd hook snapshots it and queues a flag.
 4. Next session, the SessionStart hook tells the assistant to write the recap first. Let it.
-5. Delete the `EXAMPLE` topics in `knowledge/` and the example memories once you have real content.
+5. Point `origin` at your **own private** repo if you want multi-machine sync (see below).
+
+### What the installer does to keep you safe
+- **Detaches the template remote.** A fresh clone has `origin` = this public repo. The SessionEnd
+  hook auto-pushes committed work — without detaching, your private sessions and memories would be
+  aimed at the framework repo. `session_end.sh` refuses that push as a second net.
+- **Does not duplicate the hook wiring.** Hooks live in the committed `.claude/settings.json` and are
+  loaded automatically. Copying that block into `settings.local.json` as well would register — and
+  fire — every hook twice.
 
 ### Manual install (no installer)
 1. Replace every `{{PLACEHOLDER}}` in `CLAUDE.md`, `memory.md`, `memory/user_owner_role.md`.
-2. Copy `.claude/settings.json` into your `.claude/settings.local.json` (or merge the `hooks` block).
-3. `chmod +x .claude/hooks/*.sh scripts/*.py`
-4. `python3 scripts/build_knowledge_index.py`
+2. `git remote remove origin` (or point it at your own repo).
+3. `chmod +x .claude/hooks/*.sh scripts/*.sh scripts/*.py`
+4. `python3 scripts/build_knowledge_index.py && bash scripts/selftest.sh`
+
+### Self-test — the loop is proven, not promised
+`bash scripts/selftest.sh` builds a disposable sandbox instance, fires the **real** hooks at it and
+checks that: a flag is written, the transcript is snapshotted, a session number is assigned from the
+real `sessions/` state, the %5 hard gate fires on session 005, a written recap consumes its flag,
+orphan memories are reported, blanket staging is denied, the template-push guard is in place, and the
+knowledge index builds clean. It never touches your own state. Run it after every hook change — it is
+also what CI runs on every push.
+
+### Rolling it out to a team
+Every developer gets their **own** instance: clone → `./install.sh` → point `origin` at their own
+private repo. Memory is personal. There is no shared-memory mode, and pushing several people's
+instances into one repo is not supported (`sessions/` and `MEMORY.md` would collide on every write).
 
 ---
 
@@ -230,6 +269,8 @@ extraction silently lost ~6% of events on escaped values), with a grep/sed fallb
   atomically (tempfile + rename) — no single-file race when sessions end back-to-back. Finally it
   **auto-pushes** any committed-but-unpushed commits to `origin` in the background (non-blocking,
   30s timeout, never fails the hook) — the multi-machine sync: one machine writes, others pull.
+  It **refuses to push to the framework template** (a clone that skipped the installer would
+  otherwise aim your private memory at this repo).
 
 - **`session_start.sh`** (SessionStart) — scans the flag folder, excludes the current session, dedups any
   already-recapped sessions (it greps `sessions/*.md` for the `prev_session_id:` frontmatter), assigns

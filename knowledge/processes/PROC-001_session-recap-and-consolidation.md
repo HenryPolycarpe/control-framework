@@ -3,7 +3,7 @@ id: PROC-001
 title: "Session Recap + 5-Session Consolidation"
 category: processes
 status: active
-related: [ARCH-001, TOOL-001]
+related: [ARCH-001, TOOL-001, L-002, RULE-001]
 sessions: ["001"]
 tags: [process, memory, ritual, example]
 last_verified: 2026-06-09

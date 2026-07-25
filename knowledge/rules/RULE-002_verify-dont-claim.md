@@ -3,7 +3,7 @@ id: RULE-002
 title: "Verify, don't claim"
 category: rules
 status: active
-related: [L-001]
+related: [L-001, L-002]
 sessions: ["001"]
 tags: [verification, safety, example]
 last_verified: 2026-06-09

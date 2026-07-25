@@ -121,8 +121,19 @@ fi
 
 # ── Unpushed-commits warning (makes silent auto-push failures visible) ───────
 # session_end.sh pushes in the background and swallows errors; check for leftovers here.
+# If origin still points at the framework template, auto-sync is deliberately off (see the guard
+# in session_end.sh) -> report THAT instead of nagging about commits that must never be pushed.
 PUSH_BLOCK=""
-if git -C "$CONTROL_DIR" rev-parse --abbrev-ref '@{u}' >/dev/null 2>&1; then
+ORIGIN_URL="$(git -C "$CONTROL_DIR" remote get-url origin 2>/dev/null || echo "")"
+case "$ORIGIN_URL" in
+  *control-framework*)
+    PUSH_BLOCK="## Note: this instance still points at the framework template
+\`origin\` = $ORIGIN_URL -> auto-sync is disabled (your memory must never be pushed there). Create your own private repo and run: \`git remote set-url origin <your-repo-url>\` — or \`git remote remove origin\` to work purely locally.
+
+"
+    ;;
+esac
+if [ -z "$PUSH_BLOCK" ] && git -C "$CONTROL_DIR" rev-parse --abbrev-ref '@{u}' >/dev/null 2>&1; then
   behind=$(git -C "$CONTROL_DIR" log --oneline '@{u}'..HEAD 2>/dev/null | wc -l | tr -d ' ')
   if [ "${behind:-0}" -gt 0 ]; then
     PUSH_BLOCK="## ⚠️ ${behind} unpushed commit(s) in this repo
@@ -146,8 +157,12 @@ for f in "$PENDING_DIR"/*; do
   [ -f "$f" ] || continue
   sid="$(basename "$f")"
   [ "$sid" = "$CUR_ID" ] && continue
-  if grep -rlF "prev_session_id: \"$sid" "$SESS_DIR"/*.md >/dev/null 2>&1 \
-     || grep -rlF "prev_session_id: $sid" "$SESS_DIR"/*.md >/dev/null 2>&1; then
+  # NOTE: grep gets the DIRECTORY, never a glob. With nullglob an empty sessions/ makes
+  # `"$SESS_DIR"/*.md` vanish, and a file-less grep falls back to STDIN — which blocks the
+  # hook forever (and with it every Claude Code start). Bit us on a fresh instance whose
+  # example session had been deleted; scripts/selftest.sh covers it now.
+  if grep -rlF "prev_session_id: \"$sid" "$SESS_DIR" >/dev/null 2>&1 \
+     || grep -rlF "prev_session_id: $sid" "$SESS_DIR" >/dev/null 2>&1; then
     rm -f "$f"; rm -f "$SNAP_DIR/$sid.jsonl" 2>/dev/null; continue
   fi
   endts=$(grep -E '^PREV_SESSION_END=' "$f" | cut -d= -f2- | head -1)

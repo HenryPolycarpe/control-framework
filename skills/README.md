@@ -7,6 +7,8 @@ one when its trigger fires.
 ## Core skills (part of the compound-memory machine — keep these)
 - **`end_of_session.md`** — write the recap for each finished session. Triggered by the SessionStart hook.
 - **`weekly_consolidation.md`** — every 5th session, distill raw sessions into the knowledge map.
+- **`session_reconstruction.md`** — clear a recap backlog (>3 open flags) in one verified pass.
+- **`SKILL_PROPOSALS.md`** — the ledger: a workflow seen in 3 consolidations becomes a skill.
 
 ## Your own skills
 Add one markdown file per ritual you do more than twice. Good skills:

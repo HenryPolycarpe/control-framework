@@ -25,14 +25,39 @@ real `sessions/` state).
 The injected number reflects the state at session start; a parallel window may have written in the
 meantime. Right before writing:
 ```bash
-ls sessions/ | tail -3                                    # session_NNN.md already exists? -> fall back to highest+1
-grep -rl "prev_session_id: <SESSION_ID>" sessions/*.md    # already recapped? -> just delete flag+snapshot, done
+ls sessions/ | tail -3                                 # session_NNN.md already exists? -> fall back to highest+1
+grep -rl "prev_session_id: <SESSION_ID>" sessions/     # already recapped? -> just delete flag+snapshot, done
 ```
+> Pass grep the **directory**, not `sessions/*.md`. On an empty (or freshly cleaned) sessions folder
+> the glob expands to nothing and grep silently reads STDIN instead — it hangs or returns nonsense.
+> The same trap once froze the SessionStart hook itself.
 
 ### 3. Reconstruct the previous session
-- Prefer the snapshot transcript (`.session_snapshots/<id>.jsonl`) — read it for what actually happened.
-- Else fall back to: `git log --since "<PREV_SESSION_END>"` in this repo and any related repos,
-  plus any artifacts created since (reports, generated files).
+Source priority — take the first one that actually has content:
+1. **Snapshot** `.session_snapshots/<id>.jsonl` (written by SessionEnd/PreCompact) — the normal case.
+2. **Live transcript** `~/.claude/projects/<project-hash>/<SESSION_ID>.jsonl` — 0-byte or missing
+   snapshots do happen; the original often still exists.
+3. **Git fallback:** `git log --since "<PREV_SESSION_END>"` in this repo and any related repos,
+   plus artifacts created since (reports, generated files, deploys).
+
+Never read a large JSONL transcript whole. Extract instead:
+```bash
+python3 - "$SNAP" <<'PY'
+import json, sys
+for line in open(sys.argv[1], encoding="utf-8", errors="replace"):
+    try: d = json.loads(line)
+    except Exception: continue
+    m = d.get("message", {})
+    if d.get("type") == "user" and isinstance(m.get("content"), str):
+        print("USER:", m["content"][:2000])
+    elif d.get("type") == "assistant":
+        for c in m.get("content", []):
+            if c.get("type") == "text": print("ASSISTANT:", c["text"][:300])
+PY
+```
+
+> **More than ~3 open flags?** Don't grind through them one by one — use
+> `skills/session_reconstruction.md` (triage + parallel fan-out + verification).
 
 ### 4. Write `sessions/session_NNN.md`
 Max 100 lines. Aggressive compaction. Template:

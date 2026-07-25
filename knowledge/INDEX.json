@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-07T11:18:56Z",
+  "generated_at": "2026-07-25T18:59:15Z",
   "topics": [
     {
       "id": "ARCH-001",
@@ -63,6 +63,29 @@
       "last_verified": "2026-06-09"
     },
     {
+      "id": "L-002",
+      "title": "An empty glob makes grep read STDIN — and a hook hangs",
+      "category": "learnings",
+      "path": "knowledge/learnings/L-002_glob-vanishes-grep-eats-stdin.md",
+      "status": "active",
+      "related": [
+        "PROC-001",
+        "RULE-002"
+      ],
+      "sessions": [
+        "002"
+      ],
+      "tags": [
+        "bash",
+        "hooks",
+        "glob",
+        "nullglob",
+        "stdin",
+        "real"
+      ],
+      "last_verified": "2026-07-25"
+    },
+    {
       "id": "PROC-001",
       "title": "Session Recap + 5-Session Consolidation",
       "category": "processes",
@@ -70,7 +93,9 @@
       "status": "active",
       "related": [
         "ARCH-001",
-        "TOOL-001"
+        "TOOL-001",
+        "L-002",
+        "RULE-001"
       ],
       "sessions": [
         "001"
@@ -107,7 +132,9 @@
       "category": "rules",
       "path": "knowledge/rules/RULE-001_detailed-summaries.md",
       "status": "active",
-      "related": [],
+      "related": [
+        "PROC-001"
+      ],
       "sessions": [
         "001"
       ],
@@ -125,7 +152,8 @@
       "path": "knowledge/rules/RULE-002_verify-dont-claim.md",
       "status": "active",
       "related": [
-        "L-001"
+        "L-001",
+        "L-002"
       ],
       "sessions": [
         "001"
@@ -167,7 +195,8 @@
       "D-001"
     ],
     "learnings": [
-      "L-001"
+      "L-001",
+      "L-002"
     ],
     "processes": [
       "PROC-001"
@@ -193,6 +222,9 @@
       "RULE-001",
       "RULE-002",
       "TOOL-001"
+    ],
+    "002": [
+      "L-002"
     ]
   },
   "by_tag": {
@@ -201,6 +233,9 @@
     ],
     "architecture": [
       "ARCH-001"
+    ],
+    "bash": [
+      "L-002"
     ],
     "communication": [
       "RULE-001"
@@ -215,8 +250,12 @@
       "RULE-002",
       "TOOL-001"
     ],
+    "glob": [
+      "L-002"
+    ],
     "hooks": [
-      "ARCH-001"
+      "ARCH-001",
+      "L-002"
     ],
     "index": [
       "TOOL-001"
@@ -228,6 +267,9 @@
       "ARCH-001",
       "PROC-001"
     ],
+    "nullglob": [
+      "L-002"
+    ],
     "process": [
       "PROC-001"
     ],
@@ -236,6 +278,9 @@
     ],
     "python": [
       "TOOL-001"
+    ],
+    "real": [
+      "L-002"
     ],
     "ritual": [
       "PROC-001"
@@ -247,6 +292,9 @@
       "D-001",
       "L-001"
     ],
+    "stdin": [
+      "L-002"
+    ],
     "verification": [
       "RULE-002"
     ],
@@ -254,10 +302,49 @@
       "RULE-001"
     ]
   },
-  "orphans": [
-    "RULE-001"
+  "orphans": [],
+  "stale_topics": [
+    {
+      "id": "ARCH-001",
+      "last_verified": "2026-06-09",
+      "age_days": 46
+    },
+    {
+      "id": "D-001",
+      "last_verified": "2026-06-09",
+      "age_days": 46
+    },
+    {
+      "id": "L-001",
+      "last_verified": "2026-06-09",
+      "age_days": 46
+    },
+    {
+      "id": "PROC-001",
+      "last_verified": "2026-06-09",
+      "age_days": 46
+    },
+    {
+      "id": "PROJ-001",
+      "last_verified": "2026-06-09",
+      "age_days": 46
+    },
+    {
+      "id": "RULE-001",
+      "last_verified": "2026-06-09",
+      "age_days": 46
+    },
+    {
+      "id": "RULE-002",
+      "last_verified": "2026-06-09",
+      "age_days": 46
+    },
+    {
+      "id": "TOOL-001",
+      "last_verified": "2026-06-09",
+      "age_days": 46
+    }
   ],
-  "stale_topics": [],
   "no_last_verified": [],
   "broken_refs": [],
   "duplicates": [],

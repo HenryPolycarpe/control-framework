@@ -77,6 +77,18 @@ echo "$END_TS session_end: id=$SESSION_ID reason=$REASON snapshot=${SNAP:-NONE}"
 # remote, no machine-to-machine SSH needed. Strictly non-blocking + non-fatal: runs in the background,
 # with a timeout, never fails the hook (network/offline/auth issues are fine). Failures additionally
 # surface as a warning injected by the SessionStart hook (unpushed-commits check there).
+#
+# SAFETY GUARD: never push to the framework template itself. A fresh `git clone` of
+# control-framework leaves origin pointing at the template — without this check the hook would
+# try to push YOUR private memory there (and the SessionStart hook would nag about "unpushed
+# commits" forever once it fails). install.sh detaches that origin; this is the second net.
+ORIGIN_URL="$(git -C "$CONTROL_DIR" remote get-url origin 2>/dev/null || echo "")"
+case "$ORIGIN_URL" in
+  *control-framework*)
+    echo "$END_TS auto-push: SKIPPED — origin is the framework template ($ORIGIN_URL). Point origin at your own repo: git remote set-url origin <your-repo>" >> "$LOG_FILE" 2>/dev/null
+    exit 0
+    ;;
+esac
 if git -C "$CONTROL_DIR" rev-parse --abbrev-ref '@{u}' >/dev/null 2>&1; then
   if [ -n "$(git -C "$CONTROL_DIR" log --oneline '@{u}'..HEAD 2>/dev/null)" ]; then
     (
